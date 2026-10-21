@@ -1,0 +1,31 @@
+{
+  "environments": [
+    {
+      "environment": "py314-weewx552",
+      "exit_code": 0,
+      "seconds": 0.7,
+      "summary": "4 passed in 0.54s"
+    },
+    {
+      "environment": "py310-weewx510",
+      "exit_code": 0,
+      "seconds": 0.7,
+      "summary": "4 passed in 0.57s"
+    },
+    {
+      "environment": "py310-weewx410",
+      "exit_code": 0,
+      "seconds": 0.66,
+      "summary": "4 passed in 0.55s"
+    }
+  ],
+  "mutations": [
+    {
+      "mutation": "tls-default",
+      "test": "tests/test_owm.py::test_default_endpoint_uses_tls",
+      "detected": true,
+      "exit_code": 1,
+      "observed_failure": "E       AssertionError: assert False\nE        +  where False = <built-in method startswith of str object at 0x7bf6f2db69d0>('https://')\nE        +    where <built-in method startswith of str object at 0x7bf6f2db69d0> = 'http://api.openweathermap.org/data/3.0/measurements'.startswith\nE        +      where 'http://api.openweathermap.org/data/3.0/measurements' = <class 'owm.OpenWeatherMapThread'>._SERVER_URL\nE        +        where <class 'owm.OpenWeatherMapThread'> = owm.OpenWeatherMapThread\nFAILED tests/test_owm.py::test_default_endpoint_uses_tls - AssertionError: as..."
+    }
+  ]
+}

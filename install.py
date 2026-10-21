@@ -1,3 +1,4 @@
+# Modified 2026-10-22 by weewx-packages: compatibility and tracker repairs.
 # installer for OpenWeatherMap
 # Copyright 2014-2020 Matthew Wall
 # Distributed under the terms of the GNU Public License (GPLv3)
@@ -10,7 +11,7 @@ def loader():
 class OWMInstaller(ExtensionInstaller):
     def __init__(self):
         super(OWMInstaller, self).__init__(
-            version="0.9",
+            version="0.10.0",
             name='owm',
             description='Upload weather data to OpenWeatherMap.',
             author="Matthew Wall",

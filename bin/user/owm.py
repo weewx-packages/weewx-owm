@@ -1,3 +1,4 @@
+# Modified 2026-10-22 by weewx-packages: compatibility and tracker repairs.
 # Copyright 2013-2020 Matthew Wall
 """
 Upload data to OpenWeatherMap
@@ -34,7 +35,7 @@ import weewx.restx
 import weewx.units
 from weeutil.weeutil import to_bool, accumulateLeaves
 
-VERSION = "0.9"
+VERSION = "0.10.0"
 
 try:
     # Test for new-style weewx logging by trying to import weeutil.logger
@@ -153,7 +154,7 @@ class OpenWeatherMapThread(weewx.restx.RESTThread):
     # luminosity
     # radiation
 
-    _SERVER_URL = 'http://api.openweathermap.org/data/3.0/measurements'
+    _SERVER_URL = 'https://api.openweathermap.org/data/3.0/measurements'
     _DATA_MAP = {
         'dt':          ('dateTime',    1, 0),        # epoch
         'wind_deg':    ('windDir',     1.0, 0.0),    # degrees
