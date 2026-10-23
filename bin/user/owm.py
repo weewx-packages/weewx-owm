@@ -1,6 +1,8 @@
 # Modified 2026-10-22 by weewx-packages: compatibility and tracker repairs.
 # Modified 2026-10-23 by weewx-packages: ignore unknown options, honor enable,
 #   mask the appid in the debug log.
+# Modified 2026-10-23 by weewx-packages: do not start with placeholder appid
+#   or station_id.
 # Copyright 2013-2020 Matthew Wall
 """
 Upload data to OpenWeatherMap
@@ -117,12 +119,16 @@ class OpenWeatherMap(weewx.restx.StdRESTful):
         site_dict = weewx.restx.get_site_dict(config_dict, 'OpenWeatherMap')
         if site_dict is None:
             return
-        try:
-            site_dict['appid']
-            site_dict['station_id']
-        except KeyError as e:
-            logerr("Data will not be posted: Missing option %s" % e)
-            return
+        # The installer of this extension writes INSERT_APPID_HERE and
+        # INSERT_STATION_ID_HERE, and the default weewx.conf uses replace_me
+        # for the uploaders in WeeWX itself. A value that is still one of
+        # these placeholders has not been configured, so it is treated like
+        # a missing option and the uploader does not start.
+        placeholders = ('replace_me', 'INSERT_APPID_HERE', 'INSERT_STATION_ID_HERE')
+        for option in ('appid', 'station_id'):
+            if site_dict.get(option) is None or site_dict[option] in placeholders:
+                logerr("Data will not be posted: Missing option '%s'" % option)
+                return
         # The options are passed to OpenWeatherMapThread as keyword
         # arguments, so a name it does not accept would raise TypeError and
         # stop WeeWX. Drop such names instead. 'queue' is not an option; the
