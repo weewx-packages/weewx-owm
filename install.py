@@ -11,7 +11,7 @@ def loader():
 class OWMInstaller(ExtensionInstaller):
     def __init__(self):
         super(OWMInstaller, self).__init__(
-            version="0.10.0",
+            version="0.10.1",
             name='owm',
             description='Upload weather data to OpenWeatherMap.',
             author="Matthew Wall",
