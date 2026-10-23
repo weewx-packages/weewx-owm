@@ -42,7 +42,8 @@ below, restart WeeWX, then check its log after the next archive record.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `appid` | required | OpenWeatherMap API key. |
+| `enable` | `true` | Set to `false` to turn the uploader off. |
+| `appid` | required | OpenWeatherMap API key. With `debug = 2`, the log shows only its last four characters. |
 | `station_id` | required | Internal station `id` from the station API. |
 | `server_url` | `https://api.openweathermap.org/data/3.0/measurements` | Measurement endpoint. |
 | `skip_upload` | `false` | Build each upload but do not send it. |
@@ -55,6 +56,8 @@ below, restart WeeWX, then check its log after the next archive record.
 | `max_tries` | `3` | Attempts per record. |
 | `retry_wait` | `5` | Seconds between attempts. |
 
+WeeWX logs a warning for any other option in the section and ignores it.
+
 Each upload contains the time, wind direction, speed and gust, temperature,
 humidity, barometer, hourly rain and 24-hour rain, as far as the record has
 them. Values are converted to Celsius, m/s, mbar and mm. When a record has no
@@ -62,10 +65,6 @@ hourly or 24-hour rain, WeeWX sums it from the archive of `wx_binding`.
 
 ## Limitations
 
-* Every option in `[[OpenWeatherMap]]` is passed to the uploader. Any option
-  not named on this page, including `enable`, stops WeeWX at startup. To turn
-  the uploader off, remove `user.owm.OpenWeatherMap` from `restful_services`
-  in `[Engine]`.
 * The uploader does not register stations or update their location metadata.
   `latitude`, `longitude` and `altitude` are accepted but not sent. Set that
   metadata with the station API.

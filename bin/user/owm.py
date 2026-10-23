@@ -1,4 +1,6 @@
 # Modified 2026-10-22 by weewx-packages: compatibility and tracker repairs.
+# Modified 2026-10-23 by weewx-packages: ignore unknown options, honor enable,
+#   mask the appid in the debug log.
 # Copyright 2013-2020 Matthew Wall
 """
 Upload data to OpenWeatherMap
@@ -29,11 +31,13 @@ except (ImportError, AttributeError):
         import simplejson as json
     except ImportError:
         import json
+import inspect
+import urllib.request
 
 import weewx
 import weewx.restx
 import weewx.units
-from weeutil.weeutil import to_bool, accumulateLeaves
+from weeutil.weeutil import to_bool
 
 VERSION = "0.10.0"
 
@@ -48,6 +52,9 @@ try:
 
     def loginf(msg):
         log.info(msg)
+
+    def logwarn(msg):
+        log.warning(msg)
 
     def logerr(msg):
         log.error(msg)
@@ -64,6 +71,9 @@ except ImportError:
 
     def loginf(msg):
         logmsg(syslog.LOG_INFO, msg)
+
+    def logwarn(msg):
+        logmsg(syslog.LOG_WARNING, msg)
 
     def logerr(msg):
         logmsg(syslog.LOG_ERR, msg)
@@ -101,14 +111,27 @@ class OpenWeatherMap(weewx.restx.StdRESTful):
             loginf('****   OWM upload skipped')
             return
 
+        # get_site_dict() returns None if the section is missing or has
+        # enable = false, and removes 'enable' otherwise, as for the
+        # uploaders in WeeWX itself.
+        site_dict = weewx.restx.get_site_dict(config_dict, 'OpenWeatherMap')
+        if site_dict is None:
+            return
         try:
-            site_dict = config_dict['StdRESTful']['OpenWeatherMap']
-            site_dict = accumulateLeaves(site_dict, max_level=1)
             site_dict['appid']
             site_dict['station_id']
         except KeyError as e:
             logerr("Data will not be posted: Missing option %s" % e)
             return
+        # The options are passed to OpenWeatherMapThread as keyword
+        # arguments, so a name it does not accept would raise TypeError and
+        # stop WeeWX. Drop such names instead. 'queue' is not an option; the
+        # service passes its own queue.
+        known = set(inspect.signature(OpenWeatherMapThread.__init__).parameters)
+        known -= {'self', 'queue'}
+        for key in sorted(set(site_dict) - known):
+            logwarn("Ignoring unknown option %s" % key)
+            del site_dict[key]
         site_dict.setdefault('latitude', engine.stn_info.latitude_f)
         site_dict.setdefault('longitude', engine.stn_info.longitude_f)
         site_dict.setdefault('altitude', engine.stn_info.altitude_vt[0])
@@ -199,6 +222,19 @@ class OpenWeatherMapThread(weewx.restx.RESTThread):
         url = "%s?appid=%s" % (self.server_url, self.appid)
         return url
 
+    def post_request(self, request, data=None):
+        """Override, so that the debug log does not show the appid.
+
+        RESTThread.post_request() logs the full URL when debug is 2 or
+        higher, and the URL carries the appid. This version logs it with
+        all but the last four characters of the appid masked.
+        """
+        if data is not None and not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        if weewx.debug >= 2:
+            url = request.get_full_url().replace(self.appid, _obfuscate(self.appid))
+            logdbg("%s url: '%s'" % (self.protocol_name, url))
+        return urllib.request.urlopen(request, data=data, timeout=self.timeout)
 
     def get_post_body(self, in_record):
         """Override, then supply the body and MIME type of the POST."""

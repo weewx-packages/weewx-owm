@@ -1,3 +1,10 @@
+Unreleased
+* ignore unknown options in [[OpenWeatherMap]] with a warning instead of
+  stopping WeeWX at startup
+* honor enable = false in [[OpenWeatherMap]], as the WeeWX uploaders do
+* mask the appid in the URL that WeeWX logs with debug = 2 or higher. The
+  0.6 entry promised this, but the masking was never applied.
+
 0.9 06may2020
 * Ported to Python 3 and WeeWX V4 -tk
 
