@@ -41,7 +41,7 @@ import weewx.restx
 import weewx.units
 from weeutil.weeutil import to_bool
 
-VERSION = "0.10.0"
+VERSION = "0.10.1"
 
 try:
     # Test for new-style weewx logging by trying to import weeutil.logger
