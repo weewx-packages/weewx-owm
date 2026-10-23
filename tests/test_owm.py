@@ -98,3 +98,9 @@ def test_debug_log_masks_appid(monkeypatch, caplog):
         server.server_close()
     assert 'appid=XXXXXXXXX1234' in caplog.text
     assert 'SECRETKEY1234' not in caplog.text
+
+
+@pytest.mark.parametrize('option,value', [('appid', 'INSERT_APPID_HERE'), ('station_id', 'INSERT_STATION_ID_HERE'), ('appid', 'replace_me')])
+def test_placeholder_keeps_the_uploader_off(tmp_path, monkeypatch, caplog, option, value):
+    assert not hasattr(_service(tmp_path, monkeypatch, **{option: value}), 'archive_thread')
+    assert "Data will not be posted: Missing option '%s'" % option in caplog.text
